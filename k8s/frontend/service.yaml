@@ -10,3 +10,15 @@ spec:
     - port: 80
       targetPort: 80
   type: ClusterIP
+---
+# ExternalName service to route /api traffic to gateway in backend namespace
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-proxy
+  namespace: frontend
+spec:
+  type: ExternalName
+  externalName: gateway-service.backend.svc.cluster.local
+  ports:
+    - port: 8080
