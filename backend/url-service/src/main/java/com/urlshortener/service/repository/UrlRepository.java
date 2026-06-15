@@ -1,7 +1,8 @@
 package com.urlshortener.service.repository;
 
 import com.azure.data.tables.TableClient;
-import com.azure.data.tables.TableClientBuilder;
+import com.azure.data.tables.TableServiceClient;
+import com.azure.data.tables.TableServiceClientBuilder;
 import com.azure.data.tables.models.TableEntity;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,11 +22,11 @@ public class UrlRepository {
 
     @PostConstruct
     public void init() {
-        tableClient = new TableClientBuilder()
+        TableServiceClient serviceClient = new TableServiceClientBuilder()
                 .connectionString(connectionString)
-                .tableName(TABLE_NAME)
                 .buildClient();
-        tableClient.createTableIfNotExists();
+        serviceClient.createTableIfNotExists(TABLE_NAME);
+        tableClient = serviceClient.getTableClient(TABLE_NAME);
     }
 
     public void save(String code, String longUrl) {
