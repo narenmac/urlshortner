@@ -71,8 +71,11 @@ jobs:
 
       - name: Create/Update ConfigMap
         run: |
+          INGRESS_IP=$(kubectl get svc -n ingress-nginx -o jsonpath='{.items[?(@.spec.type=="LoadBalancer")].status.loadBalancer.ingress[0].ip}')
+          BASE_URL="http://${INGRESS_IP:-localhost}"
+          echo "Using base URL: $BASE_URL"
           kubectl create configmap app-config \
-            --from-literal=base-url="https://ourdomain" \
+            --from-literal=base-url="$BASE_URL" \
             --namespace=backend \
             --dry-run=client -o yaml | kubectl apply -f -
 

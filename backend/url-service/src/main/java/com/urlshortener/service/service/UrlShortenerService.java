@@ -29,7 +29,7 @@ public class UrlShortenerService {
         // Check if URL already exists
         String existingUrl = urlRepository.findByCode(code);
         if (existingUrl != null && existingUrl.equals(longUrl)) {
-            return new ShortenResponse(code, baseUrl + "/" + code, longUrl,
+            return new ShortenResponse(code, baseUrl + "/api/r/" + code, longUrl,
                     OffsetDateTime.now().toString(), false);
         }
 
@@ -41,7 +41,7 @@ public class UrlShortenerService {
         // Store in Azure Table
         urlRepository.save(code, longUrl);
 
-        return new ShortenResponse(code, baseUrl + "/" + code, longUrl,
+        return new ShortenResponse(code, baseUrl + "/api/r/" + code, longUrl,
                 OffsetDateTime.now().toString(), true);
     }
 
