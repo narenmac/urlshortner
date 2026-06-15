@@ -15,10 +15,13 @@ jobs:
         include:
           - service: frontend
             context: ./frontend
+            dockerfile: ./frontend/Dockerfile
           - service: gateway
-            context: ./backend/gateway
+            context: ./backend
+            dockerfile: ./backend/gateway/Dockerfile
           - service: url-service
-            context: ./backend/url-service
+            context: ./backend
+            dockerfile: ./backend/url-service/Dockerfile
     steps:
       - uses: actions/checkout@v4
 
@@ -32,6 +35,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.sha }}
