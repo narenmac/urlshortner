@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 public class ApiKeyFilter implements GlobalFilter, Ordered {
 
     private static final String API_KEY_HEADER = "X-API-Key";
-    private static final String ALLOWED_ORIGIN = "https://ourdomain";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -25,9 +24,15 @@ public class ApiKeyFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        // UI users: check Origin header
+        // Allow requests from our own frontend (Origin or Referer matches our host)
         String origin = request.getHeaders().getFirst(HttpHeaders.ORIGIN);
-        if (origin != null && origin.startsWith(ALLOWED_ORIGIN)) {
+        String host = request.getHeaders().getFirst(HttpHeaders.HOST);
+        if (origin != null && host != null && origin.contains(host)) {
+            return chain.filter(exchange);
+        }
+
+        // Allow requests with no Origin (same-origin requests from browser don't send Origin on GET)
+        if (origin == null) {
             return chain.filter(exchange);
         }
 
@@ -38,7 +43,7 @@ public class ApiKeyFilter implements GlobalFilter, Ordered {
             return exchange.getResponse().setComplete();
         }
 
-        // TODO: Validate API key against Azure Table / Redis cache
+        // TODO: Validate API key against Azure Table
         return chain.filter(exchange);
     }
 
