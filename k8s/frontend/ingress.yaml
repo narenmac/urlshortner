@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: ourdomain
+    - host: ""  # Leave empty to accept all traffic, or set your domain
       http:
         paths:
           - path: /

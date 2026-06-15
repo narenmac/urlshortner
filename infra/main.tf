@@ -7,12 +7,13 @@ terraform {
   }
   required_version = ">= 1.5.0"
 
-  backend "azurerm" {
-    resource_group_name  = "tfstate-rg"
-    storage_account_name = "tfstateurlshortener"
-    container_name       = "tfstate"
-    key                  = "url-shortener.tfstate"
-  }
+  # Using local state for development. Migrate to remote backend for production:
+  # backend "azurerm" {
+  #   resource_group_name  = "tfstate-rg"
+  #   storage_account_name = "tfstateurlshortener"
+  #   container_name       = "tfstate"
+  #   key                  = "url-shortener.tfstate"
+  # }
 }
 
 provider "azurerm" {
