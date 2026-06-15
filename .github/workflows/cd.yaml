@@ -58,6 +58,10 @@ jobs:
           cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
           resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
 
+      - name: Create Namespaces
+        run: |
+          kubectl apply -f k8s/namespaces.yaml
+
       - name: Create/Update Secrets
         run: |
           kubectl create secret generic azure-storage \
@@ -81,7 +85,6 @@ jobs:
           sed -i "s|IMAGE_TAG|${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }}|g" frontend/deployment.yaml
           sed -i "s|IMAGE_TAG|${{ env.IMAGE_PREFIX }}-gateway:${{ github.sha }}|g" gateway/deployment.yaml
           sed -i "s|IMAGE_TAG|${{ env.IMAGE_PREFIX }}-url-service:${{ github.sha }}|g" url-service/deployment.yaml
-          kubectl apply -f namespaces.yaml
           kubectl apply -f frontend/
           kubectl apply -f gateway/
           kubectl apply -f url-service/
