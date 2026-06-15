@@ -4,7 +4,7 @@ metadata:
   name: frontend
   namespace: frontend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: frontend
@@ -13,8 +13,6 @@ spec:
       labels:
         app: frontend
     spec:
-      nodeSelector:
-        tier: frontend
       containers:
         - name: frontend
           image: IMAGE_TAG

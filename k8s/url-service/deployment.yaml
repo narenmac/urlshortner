@@ -4,7 +4,7 @@ metadata:
   name: url-service
   namespace: backend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: url-service
@@ -13,8 +13,6 @@ spec:
       labels:
         app: url-service
     spec:
-      nodeSelector:
-        tier: backend
       containers:
         - name: url-service
           image: IMAGE_TAG
@@ -61,8 +59,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: url-service
-  minReplicas: 2
-  maxReplicas: 20
+  minreplicas: 1
+  maxreplicas: 10
   metrics:
     - type: Resource
       resource:

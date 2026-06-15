@@ -4,7 +4,7 @@ metadata:
   name: gateway
   namespace: backend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: gateway
@@ -13,8 +13,6 @@ spec:
       labels:
         app: gateway
     spec:
-      nodeSelector:
-        tier: backend
       containers:
         - name: gateway
           image: IMAGE_TAG
