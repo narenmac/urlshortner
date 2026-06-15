@@ -21,21 +21,6 @@ spec:
           ports:
             - containerPort: 8081
           env:
-            - name: REDIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: redis-host
-            - name: REDIS_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: redis-port
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: azure-storage
-                  key: redis-password
             - name: AZURE_STORAGE_CONNECTION_STRING
               valueFrom:
                 secretKeyRef:

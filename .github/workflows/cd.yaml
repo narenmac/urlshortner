@@ -66,15 +66,12 @@ jobs:
         run: |
           kubectl create secret generic azure-storage \
             --from-literal=connection-string="${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
-            --from-literal=redis-password="${{ secrets.REDIS_PASSWORD }}" \
             --namespace=backend \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Create/Update ConfigMap
         run: |
           kubectl create configmap app-config \
-            --from-literal=redis-host="${{ secrets.REDIS_HOST }}" \
-            --from-literal=redis-port="6380" \
             --from-literal=base-url="https://ourdomain" \
             --namespace=backend \
             --dry-run=client -o yaml | kubectl apply -f -

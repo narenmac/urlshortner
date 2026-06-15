@@ -4,11 +4,6 @@ server:
 spring:
   application:
     name: url-shortener-gateway
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
 
 management:
   endpoints:

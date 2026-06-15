@@ -4,36 +4,30 @@ import com.google.common.hash.Hashing;
 import com.urlshortener.service.model.ShortenResponse;
 import com.urlshortener.service.repository.UrlRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.OffsetDateTime;
 
 @Service
 public class UrlShortenerService {
 
     private static final String BASE62_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static final String REDIS_KEY_PREFIX = "url:";
-    private static final Duration CACHE_TTL = Duration.ofHours(24);
 
     private final UrlRepository urlRepository;
-    private final StringRedisTemplate redisTemplate;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
-    public UrlShortenerService(UrlRepository urlRepository, StringRedisTemplate redisTemplate) {
+    public UrlShortenerService(UrlRepository urlRepository) {
         this.urlRepository = urlRepository;
-        this.redisTemplate = redisTemplate;
     }
 
     public ShortenResponse shortenUrl(String longUrl) {
         String code = generateCode(longUrl);
 
         // Check if URL already exists
-        String existingUrl = getFromCache(code);
+        String existingUrl = urlRepository.findByCode(code);
         if (existingUrl != null && existingUrl.equals(longUrl)) {
             return new ShortenResponse(code, baseUrl + "/" + code, longUrl,
                     OffsetDateTime.now().toString(), false);
@@ -44,27 +38,15 @@ public class UrlShortenerService {
             code = handleCollision(longUrl, code);
         }
 
-        // Store in Azure Table and cache
+        // Store in Azure Table
         urlRepository.save(code, longUrl);
-        cacheUrl(code, longUrl);
 
         return new ShortenResponse(code, baseUrl + "/" + code, longUrl,
                 OffsetDateTime.now().toString(), true);
     }
 
     public String resolveCode(String code) {
-        // Try Redis cache first
-        String cachedUrl = getFromCache(code);
-        if (cachedUrl != null) {
-            return cachedUrl;
-        }
-
-        // Fallback to Azure Table Storage
-        String longUrl = urlRepository.findByCode(code);
-        if (longUrl != null) {
-            cacheUrl(code, longUrl);
-        }
-        return longUrl;
+        return urlRepository.findByCode(code);
     }
 
     private String generateCode(String url) {
@@ -82,33 +64,13 @@ public class UrlShortenerService {
     }
 
     private String handleCollision(String longUrl, String originalCode) {
-        // Append suffix and rehash
         for (int i = 1; i <= 10; i++) {
             String newCode = generateCode(longUrl + "#" + i);
-            String existing = getFromCache(newCode);
-            if (existing == null) {
-                existing = urlRepository.findByCode(newCode);
-            }
+            String existing = urlRepository.findByCode(newCode);
             if (existing == null || existing.equals(longUrl)) {
                 return newCode;
             }
         }
         throw new RuntimeException("Unable to generate unique code after 10 attempts");
-    }
-
-    private void cacheUrl(String code, String longUrl) {
-        try {
-            redisTemplate.opsForValue().set(REDIS_KEY_PREFIX + code, longUrl, CACHE_TTL);
-        } catch (Exception e) {
-            // Cache write failure is non-critical
-        }
-    }
-
-    private String getFromCache(String code) {
-        try {
-            return redisTemplate.opsForValue().get(REDIS_KEY_PREFIX + code);
-        } catch (Exception e) {
-            return null;
-        }
     }
 }

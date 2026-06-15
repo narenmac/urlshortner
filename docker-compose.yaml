@@ -9,33 +9,25 @@ services:
       - gateway
 
   gateway:
-    build: ./backend/gateway
+    build:
+      context: ./backend
+      dockerfile: gateway/Dockerfile
     ports:
       - "8080:8080"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
     depends_on:
-      - redis
       - url-service
 
   url-service:
-    build: ./backend/url-service
+    build:
+      context: ./backend
+      dockerfile: url-service/Dockerfile
     ports:
       - "8081:8081"
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
       - AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://azurite:10002/devstoreaccount1
       - APP_BASE_URL=http://localhost:8080
     depends_on:
-      - redis
       - azurite
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
