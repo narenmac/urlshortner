@@ -1,0 +1,7 @@
+resource_group_name  = "url-shortener-rg"
+location             = "eastus"
+vnet_name            = "url-shortener-vnet"
+storage_account_name = "urlshortenerstore"
+redis_name           = "url-shortener-redis"
+aks_cluster_name     = "url-shortener-aks"
+aks_dns_prefix       = "urlshortener"
